@@ -1,18 +1,19 @@
-const { dataBase } = require("../db/dataBase");
-
-module.exports = {
-    Cube: (name, owner, id) => {
-        this.name = "";
+const Cube = (owner, id) => {
+        this.name = "Твой куб";
         this.id = 0;
         this.owner = "";
     },
 
-    setCubeName: () => {
-        
-    },
+const setCubeName = () => {
 
-    getCube: () => {
-        // const cube = new Cube();
-        // database.users.push();
-    },
+}
+
+const newCube =  (owner) => {
+    const id = dataBase.users.length;
+    const cube = new Cube(owner,id);
+    database.users.push(cube);
+};
+
+module.exports = {
+   
 };
