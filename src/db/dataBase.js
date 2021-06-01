@@ -4,11 +4,16 @@ class DataBase {
     constructor(data) {
         this.dataBase = data;
     }
-    getDataBase() {
+    getData() {
         return this.dataBase;
     }
-    rewriteDB() {
-        fs.writeFile("./database.json", JSON.stringify(this.dataBase));
+    rewrite(db) {
+        this.dataBase = db;
+        fs.writeFile(
+            __dirname + "/database.json",
+            JSON.stringify(db),
+            () => {}
+        );
     }
 }
 const DB = new DataBase(data);
