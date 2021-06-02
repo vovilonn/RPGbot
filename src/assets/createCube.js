@@ -1,12 +1,36 @@
 const { dataBase } = require("../db/dataBase.js");
 
 class Cube {
-    constructor(owner, id) {
-        this.owner = owner || "Аноним";
-        this.id = id || dataBase.getData().users.length;
-        this.age = 0;
+    constructor(owner, id, others = {}) {
+        const { name, age } = others;
+        this.owner = owner;
+        this.id = id;
+        this.age = age || 0;
+        this.name = name || "Ваш куб";
+    }
+
+    setName(name) {
+        this.name = name;
+    }
+    setAge(age) {
+        this.age = age;
     }
 }
+
+// костыль ёбаный
+const $setCubeMethods = (cube) => {
+    const cubeWithMethods = new Cube(cube.owner, cube.id, {
+        name: cube.name,
+        age: cube.age,
+    });
+    return cubeWithMethods;
+};
+
+const getCube = (id) => {
+    const cubes = dataBase.getData().users;
+    const cube = cubes.find((cube) => (cube.id = id));
+    return $setCubeMethods(cube);
+};
 
 const createNewCube = (owner, id) => {
     let db = dataBase.getData();
@@ -21,6 +45,6 @@ const createNewCube = (owner, id) => {
 };
 
 module.exports = {
-    Cube: Cube,
+    getCube: getCube,
     createNewCube: createNewCube,
 };
