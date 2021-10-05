@@ -1,0 +1,23 @@
+{
+  "name": "rpg-cube-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "dev": "cross-env NTBA_FIX_319=true nodemon server/app",
+    "start": "node server/app",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.22.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "http": "0.0.1-security",
+    "https": "^1.0.0",
+    "ip": "^1.1.5",
+    "mongoose": "^6.0.8",
+    "node-telegram-bot-api": "^0.54.0"
+  }
+}
