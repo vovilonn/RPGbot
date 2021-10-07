@@ -1,19 +1,30 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { createStore, combineReducers } from "redux";
 import config from "./config.json";
+import "./index.scss";
+import { Button, Container } from "@material-ui/core";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import CubeInfo from "./components/CubeInfo";
+import cubeReducer from "./redux/reducers/cubeReducer";
+import { setCube } from "./redux/actions";
+import { Provider } from "react-redux";
+
 const url = new URL(window.location.href);
-const playerid = url.searchParams.get("id");
+const playerId = url.searchParams.get("id");
 const chatId = url.searchParams.get("chatId");
 
+const store = createStore(combineReducers({ cubes: cubeReducer }));
+
 function App() {
-    const [cube, setCube] = useState({ name: "-" });
-    const [msg, setMsg] = useState("");
     const getData = async () => {
         try {
             const res = await axios.get(
-                `https://cubebot.fun:${config.PORT}/api/cubes/${playerid}`
+                `https://cubebot.fun:${config.PORT}/api/cubes/${playerId}`
             );
-            setCube(res.data.cube);
+            store.dispatch(setCube(res.data.cube));
+            console.log(store.getState());
         } catch (err) {
             console.error(err.data);
         }
@@ -23,9 +34,8 @@ function App() {
         getData();
     }, []);
 
-    const botSendMsg = async (e) => {
+    const botSendMsg = async (msg) => {
         try {
-            e.preventDefault();
             await axios.post(
                 `https://cubebot.fun:${config.PORT}/api/bot/send`,
                 { msg, chatId }
@@ -36,24 +46,19 @@ function App() {
     };
 
     return (
-        <>
-            <h1>CUBEBOT APP User id: {playerid}</h1>
-            <ul>
-                <li>Name: {cube.name}</li>
-                <li>Age: </li>
-            </ul>
-            <button onClick={window.TelegramGameProxy.shareScore}>
-                Share score
-            </button>
-            <form onSubmit={botSendMsg}>
-                <input
-                    type="text"
-                    value={msg}
-                    onChange={(e) => setMsg(e.target.value)}
-                />
-                <button type="submit">Send</button>
-            </form>
-        </>
+        <Provider store={store}>
+            <Header />
+            <Container>
+                <CubeInfo />
+                <Button
+                    variant="contained"
+                    onClick={window.TelegramGameProxy.shareScore}
+                >
+                    Share game
+                </Button>
+            </Container>
+            <Footer />
+        </Provider>
     );
 }
 
