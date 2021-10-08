@@ -8,7 +8,9 @@ const bot = new TelegramBot(config.TOKEN, { polling: true });
 const start = () => {
     bot.setWebHook(`https://cubebot.fun:${config.PORT}/bot${config.TOKEN}`);
 
-    bot.onText(/\/getcube/, wrappedCreateCube);
+    bot.onText(/\/getcube/, wrappedCreateCube, {
+        reply_markup: { inline_keyboard: [[{ text: "zazazaza" }]] },
+    });
     bot.onText(/^взять куб/i, wrappedCreateCube);
 
     bot.onText(/\/showcube/, wrappedShowCube);

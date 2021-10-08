@@ -22,9 +22,9 @@ async function DBshowCube(id) {
     try {
         const cube = await Cube.findOne({ id });
         if (cube) {
-            return { cube, alreadyExists: false };
+            return { cube, alreadyExists: true };
         }
-        return { alreadyExists: true, cube: null };
+        return { alreadyExists: false, cube: null };
     } catch (err) {
         console.error(err);
     }
@@ -34,7 +34,7 @@ async function DBsetCubeName(name, id) {
     try {
         const cube = await Cube.findOne({ id });
         if (cube) {
-            if (name.split(" ").length <= 2) {
+            if (name.split(" ").length <= 2 && name.length < 21) {
                 cube.name = name.trim();
                 await cube.save();
                 return { hasBeenNamed: true, alreadyExists: true };

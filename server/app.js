@@ -7,11 +7,7 @@ const path = require("path");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const config = require("../etc/config");
-const {
-    DBcreateCube,
-    DBshowCube,
-    DBsetCubeName,
-} = require("./handlers/cubeHandler");
+const { DBcreateCube, DBshowCube, DBsetCubeName } = require("./handlers/cubeHandler");
 
 const privateKey = fs.readFileSync(path.resolve("../etc/ssl/key.pem"));
 const certificate = fs.readFileSync(path.resolve("../etc/ssl/cert.pem"));
@@ -42,10 +38,7 @@ app.get("/api/cubes/:id", async (req, res) => {
 
 app.post("/api/cubes/", async (req, res) => {
     try {
-        const { isCreated } = await DBcreateCube(
-            req.body.id,
-            req.body.username
-        );
+        const { isCreated } = await DBcreateCube(req.body.id, req.body.username);
         res.status(200).json(isCreated);
     } catch (err) {
         console.error(err);
@@ -54,10 +47,7 @@ app.post("/api/cubes/", async (req, res) => {
 
 app.put("/api/cubes/", async (req, res) => {
     try {
-        const { alreadyExists, hasBeenNamed } = await DBsetCubeName(
-            req.body.name,
-            req.body.id
-        );
+        const { alreadyExists, hasBeenNamed } = await DBsetCubeName(req.body.name, req.body.id);
         res.status(200).json({ alreadyExists, hasBeenNamed });
     } catch (err) {
         console.error(err);
@@ -78,9 +68,7 @@ async function startServer() {
             useNewUrlParser: true,
         });
         httpServer.listen(2080);
-        httpsServer.listen(config.PORT, "192.168.0.198", () =>
-            console.log("Server has been started!")
-        );
+        httpsServer.listen(config.PORT, "192.168.0.198", () => console.log("Server has been started!"));
     } catch (e) {
         console.error(e);
     }

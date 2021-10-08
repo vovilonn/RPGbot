@@ -23,7 +23,7 @@ function App() {
             const res = await axios.get(
                 `https://cubebot.fun:${config.PORT}/api/cubes/${playerId}`
             );
-            store.dispatch(setCube(res.data.cube));
+            if (res.data.cube) store.dispatch(setCube(res.data.cube));
             console.log(store.getState());
         } catch (err) {
             console.error(err.data);
