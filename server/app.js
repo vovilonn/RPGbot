@@ -38,7 +38,7 @@ app.get("/api/cubes/:id", async (req, res) => {
 
 app.post("/api/cubes/", async (req, res) => {
     try {
-        const { isCreated } = await DBcreateCube(req.body.id, req.body.username);
+        const { isCreated } = await DBcreateCube(req.body.id, req.body.username, req.body.chatId);
         res.status(200).json(isCreated);
     } catch (err) {
         console.error(err);

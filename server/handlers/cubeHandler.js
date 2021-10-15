@@ -1,8 +1,11 @@
 const Cube = require("../models/cubeModel");
 
-async function DBcreateCube(id, username) {
+async function DBcreateCube(id, username, chatId) {
     const params = {
         id,
+        friends: {
+            chats: [chatId],
+        },
     };
     if (username) params.name = `Куб игрока ${username}`;
     try {

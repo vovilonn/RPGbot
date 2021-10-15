@@ -9,4 +9,5 @@ module.exports = {
     SHOW_INVENTORY: "SHOW_INVENTORY",
     CREATE_CUBE: "CREATE_CUBE",
     SHOW_CUBE: "SHOW_CUBE",
+    SHOW_INFO: "SHOW_INFO",
 };

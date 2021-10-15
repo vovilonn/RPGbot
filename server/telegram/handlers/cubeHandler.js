@@ -26,9 +26,13 @@ async function showCubeInfo(id, msg) {
     }
 }
 
-async function createCube(id, username) {
+async function createCube(id, username, chatId) {
     try {
-        const { data: isCreated } = await axios.post(`https://cubebot.fun:${config.PORT}/api/cubes/`, { id, username });
+        const { data: isCreated } = await axios.post(`https://cubebot.fun:${config.PORT}/api/cubes/`, {
+            id,
+            username,
+            chatId,
+        });
         if (isCreated) {
             return 'Ура, у вас теперь есть куб!\n\nЧтобы назвать куб напишите:\n"Назвать куб <имя>"(без<>)\n\nИнформация о кубе:\n"Мой куб"';
         }

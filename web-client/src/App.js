@@ -3,7 +3,7 @@ import axios from "axios";
 import { createStore, combineReducers } from "redux";
 import config from "./config.json";
 import "./index.scss";
-import { Button, Container } from "@material-ui/core";
+import { Button, Container, Box, Typography } from "@material-ui/core";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import CubeInfo from "./components/CubeInfo";
@@ -20,9 +20,7 @@ const store = createStore(combineReducers({ cubes: cubeReducer }));
 function App() {
     const getData = async () => {
         try {
-            const res = await axios.get(
-                `https://cubebot.fun:${config.PORT}/api/cubes/${playerId}`
-            );
+            const res = await axios.get(`https://cubebot.fun:${config.PORT}/api/cubes/${playerId}`);
             if (res.data.cube) store.dispatch(setCube(res.data.cube));
             console.log(store.getState());
         } catch (err) {
@@ -36,10 +34,7 @@ function App() {
 
     const botSendMsg = async (msg) => {
         try {
-            await axios.post(
-                `https://cubebot.fun:${config.PORT}/api/bot/send`,
-                { msg, chatId }
-            );
+            await axios.post(`https://cubebot.fun:${config.PORT}/api/bot/send`, { msg, chatId });
         } catch (err) {
             console.error(err);
         }
@@ -50,11 +45,14 @@ function App() {
             <Header />
             <Container>
                 <CubeInfo />
-                <Button
-                    variant="contained"
-                    onClick={window.TelegramGameProxy.shareScore}
-                >
-                    Share game
+                <Box>
+                    <Typography>
+                        Пока что тут только инфоомация о кубе(({"\n"}
+                        Но скоро я добавлю много всего интересного:З
+                    </Typography>
+                </Box>
+                <Button variant="contained" onClick={window.TelegramGameProxy.shareScore}>
+                    Поделится:)
                 </Button>
             </Container>
             <Footer />
