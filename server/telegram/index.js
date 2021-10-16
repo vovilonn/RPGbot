@@ -1,13 +1,22 @@
 const TelegramBot = require("node-telegram-bot-api");
 const config = require("../../etc/config.json");
 const { createCube, showCube, setCubeName, showInventory } = require("./handlers/cubeHandler");
-const { Btn, SHOW_INVENTORY, CREATE_CUBE, SHOW_CUBE } = require("./public/buttons");
+const {
+    Btn,
+    SHOW_INVENTORY,
+    CREATE_CUBE,
+    SHOW_CUBE,
+    SHOW_INFO,
+    ACCEPT_BATTLE,
+    DECLINE_BATTLE,
+} = require("./public/buttons");
 
 const bot = new TelegramBot(config.TOKEN, { polling: true });
 
 async function wrappedCreateCube(msg) {
-    const status = await createCube(msg.from.id, msg.from.first_name.trim());
-    bot.sendMessage("message" in msg ? msg.message.chat.id : msg.chat.id, status, {
+    const chatId = "message" in msg ? msg.message.chat.id : msg.chat.id;
+    const status = await createCube(msg.from.id, msg.from.first_name.trim(), chatId);
+    bot.sendMessage(chatId, status, {
         reply_markup: JSON.stringify({
             inline_keyboard: [[new Btn("Мой куб", SHOW_CUBE)]],
         }),
@@ -19,7 +28,9 @@ async function wrappedShowCube(msg) {
     bot.sendMessage("message" in msg ? msg.message.chat.id : msg.chat.id, status.msg, {
         reply_markup: JSON.stringify({
             inline_keyboard: [
-                [status.alreadyExists ? new Btn("Инвентарь", SHOW_INVENTORY) : new Btn("Взять куб", CREATE_CUBE)],
+                status.alreadyExists
+                    ? [new Btn("Инвентарь", SHOW_INVENTORY), new Btn("Инфо", SHOW_INFO)]
+                    : new Btn("Взять куб", CREATE_CUBE),
             ],
         }),
     });
@@ -37,13 +48,32 @@ async function wrappedShowInventory(msg) {
     bot.sendMessage("message" in msg ? msg.message.chat.id : msg.chat.id, status.msg, options);
 }
 
+async function wrappedAcceptBattle(msg) {
+    // НАДО СДЕЛАТЬ
+}
+
 async function wrappedSetCubeName(msg, temp) {
     const status = await setCubeName(temp[1].trim(), msg.from.id);
     bot.sendMessage(msg.chat.id, status);
 }
 
 const start = () => {
-    bot.setWebHook(`https://cubebot.fun:${config.PORT}/bot${config.TOKEN}`);
+    bot.onText(/^сражение/i, (msg) => {
+        if (msg.reply_to_message) {
+            const battleId = `${msg.from.id}:${msg.reply_to_message.from.id}`;
+            bot.sendMessage(
+                msg.chat.id,
+                `Сражение ${msg.from.first_name} и ${msg.reply_to_message.from.first_name}\nЧтобы принять сражение "принять сражение"\nОтклонить "отклонить сражение"`,
+                {
+                    reply_markup: JSON.stringify({
+                        inline_keyboard: [[new Btn("Принять", ACCEPT_BATTLE), new Btn("Отклонить", DECLINE_BATTLE)]],
+                    }),
+                }
+            );
+        }
+    });
+
+    bot.onText(/^cражение принять/i, wrappedAcceptBattle);
 
     bot.onText(/\/getcube/, wrappedCreateCube);
     bot.onText(/^взять куб/i, wrappedCreateCube);
@@ -54,7 +84,7 @@ const start = () => {
     bot.onText(/^назвать куб (.+)/i, wrappedSetCubeName);
 
     bot.onText(/\/play/, (msg) => {
-        bot.sendGame(msg.from.id, "CubeBot");
+        bot.sendGame(msg.chat.id, "CubeBot");
     });
 
     bot.onText(/\/score/, async (msg) => {
@@ -69,6 +99,7 @@ const start = () => {
     });
 
     bot.on("callback_query", (qr) => {
+        const chatId = qr.message.chat.id;
         if (qr.game_short_name) {
             bot.answerCallbackQuery(qr.id, {
                 url: `https://cubebot.fun/?id=${qr.from.id}&chatId=${qr.message.chat.id}`,
@@ -79,15 +110,16 @@ const start = () => {
                 wrappedCreateCube(qr);
                 break;
             }
-
             case SHOW_INVENTORY: {
                 wrappedShowInventory(qr);
                 break;
             }
-
             case SHOW_CUBE: {
                 wrappedShowCube(qr);
                 break;
+            }
+            case SHOW_INFO: {
+                bot.sendMessage(chatId, "Info");
             }
 
             default:

@@ -14,6 +14,10 @@ const schema = new Schema({
         type: Number,
         default: 1,
     },
+    energy: {
+        type: Number,
+        default: 10,
+    },
     inventory: {
         type: Array,
         default: [
@@ -24,6 +28,9 @@ const schema = new Schema({
     regDate: {
         type: Date,
         default: Date.now(),
+    },
+    friends: {
+        type: Object,
     },
 });
 
