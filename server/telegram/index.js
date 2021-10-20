@@ -1,6 +1,7 @@
 const TelegramBot = require("node-telegram-bot-api");
 const config = require("../../etc/config.json");
-const { createCube, showCube, setCubeName, showInventory } = require("./handlers/cubeHandler");
+const battle = require("./games/battle");
+const { createCube, showCube, setCubeName, showInventory, getCube } = require("./handlers/cubeHandler");
 const {
     Btn,
     SHOW_INVENTORY,
@@ -30,7 +31,7 @@ async function wrappedShowCube(msg) {
             inline_keyboard: [
                 status.alreadyExists
                     ? [new Btn("Инвентарь", SHOW_INVENTORY), new Btn("Инфо", SHOW_INFO)]
-                    : new Btn("Взять куб", CREATE_CUBE),
+                    : [new Btn("Взять куб", CREATE_CUBE)],
             ],
         }),
     });
@@ -48,32 +49,38 @@ async function wrappedShowInventory(msg) {
     bot.sendMessage("message" in msg ? msg.message.chat.id : msg.chat.id, status.msg, options);
 }
 
-async function wrappedAcceptBattle(msg) {
-    // НАДО СДЕЛАТЬ
-}
-
 async function wrappedSetCubeName(msg, temp) {
     const status = await setCubeName(temp[1].trim(), msg.from.id);
     bot.sendMessage(msg.chat.id, status);
 }
 
 const start = () => {
-    bot.onText(/^сражение/i, (msg) => {
-        if (msg.reply_to_message) {
-            const battleId = `${msg.from.id}:${msg.reply_to_message.from.id}`;
-            bot.sendMessage(
-                msg.chat.id,
-                `Сражение ${msg.from.first_name} и ${msg.reply_to_message.from.first_name}\nЧтобы принять сражение "принять сражение"\nОтклонить "отклонить сражение"`,
-                {
+    bot.onText(/^сражение/i, async (msg) => {
+        const res = await getCube(msg.from.id);
+        if (res.alreadyExists) {
+            if (msg.reply_to_message) {
+                const [u1, u2] = [msg.from, msg.reply_to_message.from];
+                if (u1.id === u2.id) return;
+                const battleId = `${u1.id}&${u2.id}`;
+
+                await bot.sendMessage(msg.chat.id, `Сражение ${u1.first_name} и ${u2.first_name}`, {
                     reply_markup: JSON.stringify({
-                        inline_keyboard: [[new Btn("Принять", ACCEPT_BATTLE), new Btn("Отклонить", DECLINE_BATTLE)]],
+                        inline_keyboard: [
+                            [
+                                new Btn("Принять", `${ACCEPT_BATTLE}?${battleId}`),
+                                new Btn("Отклонить", `${DECLINE_BATTLE}?${battleId}`),
+                            ],
+                        ],
                     }),
-                }
-            );
+                });
+                battle.initialize(battleId, u1, u2);
+            }
+        } else {
+            bot.sendMessage(msg.chat.id, res.msg, {
+                reply_markup: JSON.stringify({ inline_keyboard: [[new Btn("Взять куб", CREATE_CUBE)]] }),
+            });
         }
     });
-
-    bot.onText(/^cражение принять/i, wrappedAcceptBattle);
 
     bot.onText(/\/getcube/, wrappedCreateCube);
     bot.onText(/^взять куб/i, wrappedCreateCube);
@@ -98,12 +105,27 @@ const start = () => {
         }
     });
 
-    bot.on("callback_query", (qr) => {
+    bot.on("callback_query", async (qr) => {
         const chatId = qr.message.chat.id;
         if (qr.game_short_name) {
             bot.answerCallbackQuery(qr.id, {
                 url: `https://cubebot.fun/?id=${qr.from.id}&chatId=${qr.message.chat.id}`,
             });
+        }
+
+        if (/^ACCEPT_BATTLE/.test(qr.data)) {
+            const res = await getCube(qr.from.id);
+            if (res.alreadyExists) {
+                const battleId = qr.data.split("?")[1];
+                battle.start(bot, chatId, battleId, qr.from.id);
+            } else {
+                bot.sendMessage(qr.message.chat.id, res.msg, {
+                    reply_markup: JSON.stringify({ inline_keyboard: [[new Btn("Взять куб", CREATE_CUBE)]] }),
+                });
+            }
+        } else if (/^DECLINE_BATTLE/.test(qr.data)) {
+            const battleId = qr.data.split("?")[1];
+            battle.decline(bot, chatId, battleId);
         }
         switch (qr.data) {
             case CREATE_CUBE: {
@@ -119,6 +141,7 @@ const start = () => {
                 break;
             }
             case SHOW_INFO: {
+                // ДОДЕЛАТЬ
                 bot.sendMessage(chatId, "Info");
             }
 

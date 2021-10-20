@@ -1,7 +1,7 @@
 import { Grid, Box } from "@material-ui/core";
 import React from "react";
 import { connect } from "react-redux";
-import { calcCubeAge, validateDay } from "../etc/handlers";
+import { calcCubeAge, validateDay } from "../../etc/handlers.js";
 
 const CubeInfoRoot = ({ cube }) => {
     const age = calcCubeAge(cube.regDate);

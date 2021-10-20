@@ -6,9 +6,9 @@ async function getCube(id) {
     try {
         const { data } = await axios.get(`https://cubebot.fun:${config.PORT}/api/cubes/${id}`);
         if (data.alreadyExists) {
-            return data.cube;
+            return { cube: data.cube, alreadyExists: true };
         }
-        return 'У вас нет куба, чтобы взять куб напишите "Взять куб"';
+        return { cube: null, msg: 'У вас нет куба, чтобы взять куб напишите "Взять куб"', alreadyExists: false };
     } catch (err) {
         console.error(err);
     }
@@ -17,10 +17,10 @@ async function getCube(id) {
 async function showCubeInfo(id, msg) {
     try {
         const res = await getCube(id);
-        if (res.id) {
-            return { msg: msg(res) || msg, alreadyExists: true };
+        if (res.alreadyExists) {
+            return { msg: msg(res.cube) || msg, alreadyExists: true };
         }
-        return { msg: res, alreadyExists: false };
+        return { msg: res.msg, alreadyExists: false };
     } catch (err) {
         console.error(err);
     }
@@ -78,4 +78,5 @@ module.exports = {
     showCube,
     setCubeName,
     showInventory,
+    getCube,
 };

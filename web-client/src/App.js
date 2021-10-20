@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import { createStore, combineReducers } from "redux";
 import config from "./config.json";
@@ -6,10 +6,12 @@ import "./index.scss";
 import { Button, Container, Box, Typography } from "@material-ui/core";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import CubeInfo from "./components/CubeInfo";
 import cubeReducer from "./redux/reducers/cubeReducer";
 import { setCube } from "./redux/actions";
 import { Provider } from "react-redux";
+import { BrowserRouter, Route, Link } from "react-router-dom";
+import CardsGame from "./components/CardsGame/CardsGame";
+import Home from "./components/Home/Home";
 
 const url = new URL(window.location.href);
 const playerId = url.searchParams.get("id");
@@ -20,9 +22,11 @@ const store = createStore(combineReducers({ cubes: cubeReducer }));
 function App() {
     const getData = async () => {
         try {
-            const res = await axios.get(`https://cubebot.fun:${config.PORT}/api/cubes/${playerId}`);
-            if (res.data.cube) store.dispatch(setCube(res.data.cube));
-            console.log(store.getState());
+            if (playerId) {
+                const res = await axios.get(`https://cubebot.fun:${config.PORT}/api/cubes/${playerId}`);
+                if (res.data.cube) store.dispatch(setCube(res.data.cube));
+                console.log(store.getState());
+            }
         } catch (err) {
             console.error(err.data);
         }
@@ -41,22 +45,17 @@ function App() {
     };
 
     return (
-        <Provider store={store}>
-            <Header />
-            <Container>
-                <CubeInfo />
-                <Box>
-                    <Typography>
-                        Пока что тут только инфоомация о кубе(({"\n"}
-                        Но скоро я добавлю много всего интересного:З
-                    </Typography>
-                </Box>
-                <Button variant="contained" onClick={window.TelegramGameProxy.shareScore}>
-                    Поделится:)
-                </Button>
-            </Container>
-            <Footer />
-        </Provider>
+        <BrowserRouter>
+            <Provider store={store}>
+                <Header />
+                <Container>
+                    <Route exact path="/" component={Home} />
+                    <Route path="/games" component={CardsGame} />
+                </Container>
+
+                <Footer />
+            </Provider>
+        </BrowserRouter>
     );
 }
 
