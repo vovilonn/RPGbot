@@ -1,38 +1,64 @@
 @import "~normalize-scss";
 @include normalize();
+$maxWidth: 1920;
+
+@mixin adaptive-font($pcSize, $mobSize) {
+    $addSize: $pcSize - $mobSize;
+    $maxWidth: $maxWidth - 320;
+    font-size: calc(#{$mobSize + px} + #{$addSize} * ((100vw - 320px) / #{$maxWidth}));
+}
+
+*,
+*:after,
+*:before {
+    box-sizing: border-box;
+}
+
 
 .gameInfo {
     color: red;
 }
 
 .game {
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 
+    &_wrapper {
+        margin: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 20px;
+    }
+
     &_area {
-        // width: 600px;
-        // height: 600px;
+        width: 60vh;
+        height: 60vh;
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        grid-template-rows: 1fr 1fr 1fr 1fr;
+        display: grid;
         grid-gap: 5px;
+
+        @media (min-width: 902px) {
+            width: 50vh;
+            height: 50vh;
+        }
+
+        @media (max-width: 600px) {
+            width: 98vw;
+            height: 98vw;
+        }
     }
 
     &_card {
+        padding: 12.3%;
         position: relative;
         display: flex;
         justify-content: center;
         align-items: center;
         cursor: pointer;
-
-        &:hover &_front {
-            transform: rotateY(180deg);
-        }
-
-        &:hover &_back {
-            transform: rotateY(360deg);
-        }
 
         &_front,
         &_back {
@@ -55,6 +81,7 @@
             transform: rotateY(180deg);
         }
 
+        
 
     }
 }

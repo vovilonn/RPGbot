@@ -3,10 +3,7 @@ import { makeStyles } from "@material-ui/styles";
 import React from "react";
 
 const useStyles = makeStyles({
-    footer: {
-        position: "absolute",
-        bottom: "0",
-    },
+    footer: { position: "absolute", bottom: "0" },
 });
 
 export default function Footer() {

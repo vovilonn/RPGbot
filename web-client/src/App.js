@@ -1,23 +1,25 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { composeWithDevTools } from "redux-devtools-extension";
 import { createStore, combineReducers } from "redux";
 import config from "./config.json";
 import "./index.scss";
-import { Button, Container, Box, Typography } from "@material-ui/core";
+import { Container, Box, Button } from "@material-ui/core";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
 import cubeReducer from "./redux/reducers/cubeReducer";
 import { setCube } from "./redux/actions";
 import { Provider } from "react-redux";
 import { BrowserRouter, Route, Link } from "react-router-dom";
-import CardsGame from "./components/CardsGame/CardsGame";
+import CardsGame from "./components/Games/CardsGame/CardsGame";
 import Home from "./components/Home/Home";
-
+import Footer from "./components/Footer";
+import gameReducer from "./redux/reducers/gameReducer";
+import Games from "./components/Games/Games";
 const url = new URL(window.location.href);
 const playerId = url.searchParams.get("id");
 const chatId = url.searchParams.get("chatId");
 
-const store = createStore(combineReducers({ cubes: cubeReducer }));
+const store = createStore(combineReducers({ cubes: cubeReducer, games: gameReducer }), composeWithDevTools());
 
 function App() {
     const getData = async () => {
@@ -50,9 +52,17 @@ function App() {
                 <Header />
                 <Container>
                     <Route exact path="/" component={Home} />
-                    <Route path="/games" component={CardsGame} />
+                    <Route exact path="/games" component={Games} />
+                    <Route exact path="/games/cardsgame" component={CardsGame} />
+                    <Box>
+                        <Button>
+                            <Link to="/">Home</Link>
+                        </Button>
+                        <Button>
+                            <Link to="/games">Games</Link>
+                        </Button>
+                    </Box>
                 </Container>
-
                 <Footer />
             </Provider>
         </BrowserRouter>
