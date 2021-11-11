@@ -15,15 +15,29 @@ $maxWidth: 1920;
 }
 
 
-.gameInfo {
-    color: red;
-}
 
 .game {
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+
+    &_info {
+        position: relative;
+        width: 100%;
+        padding: 15px 0;
+
+        &_msg {
+            text-align: center;
+            width: 100%;
+            transform: translateX(-50%);
+            top: 0;
+            left: 50%;
+            font-size: 20px;
+            font-weight: bold;
+            position: absolute;
+        }
+    }
 
     &_wrapper {
         margin: 0 20px;
@@ -81,7 +95,7 @@ $maxWidth: 1920;
             transform: rotateY(180deg);
         }
 
-        
+
 
     }
 }

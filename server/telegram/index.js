@@ -107,9 +107,10 @@ const start = () => {
 
     bot.on("callback_query", async (qr) => {
         const chatId = qr.message.chat.id;
+
         if (qr.game_short_name) {
             bot.answerCallbackQuery(qr.id, {
-                url: `https://cubebot.fun/?id=${qr.from.id}&chatId=${qr.message.chat.id}`,
+                url: `https://cubebot.fun/?id=${qr.from.id}`,
             });
         }
 

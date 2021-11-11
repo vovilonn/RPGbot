@@ -1,3 +1,4 @@
 export const SET_CUBE = "SET_CUBE";
 export const CHANGE_GAME_MODE = "CHANGE_GAME_MODE";
 export const GENERATE_NEW_CARDS = "GENERATE_NEW_CARDS";
+export const TOGGLE_CARD_STATE = "TOGGLE_CARD_STATE";

@@ -10,14 +10,13 @@ import cubeReducer from "./redux/reducers/cubeReducer";
 import { setCube } from "./redux/actions";
 import { Provider } from "react-redux";
 import { BrowserRouter, Route, Link } from "react-router-dom";
-import CardsGame from "./components/Games/CardsGame/CardsGame";
+import CardsGame from "./components/Games/CardsGame";
 import Home from "./components/Home/Home";
 import Footer from "./components/Footer";
 import gameReducer from "./redux/reducers/gameReducer";
 import Games from "./components/Games/Games";
 const url = new URL(window.location.href);
 const playerId = url.searchParams.get("id");
-const chatId = url.searchParams.get("chatId");
 
 const store = createStore(combineReducers({ cubes: cubeReducer, games: gameReducer }), composeWithDevTools());
 
@@ -38,14 +37,6 @@ function App() {
         getData();
     }, []);
 
-    const botSendMsg = async (msg) => {
-        try {
-            await axios.post(`https://cubebot.fun:${config.PORT}/api/bot/send`, { msg, chatId });
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
     return (
         <BrowserRouter>
             <Provider store={store}>
@@ -63,7 +54,7 @@ function App() {
                         </Button>
                     </Box>
                 </Container>
-                <Footer />
+                {/* <Footer /> */}
             </Provider>
         </BrowserRouter>
     );

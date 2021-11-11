@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { BottomNavigation, BottomNavigationAction, Button } from "@material-ui/core";
-import { changeGameMode, generateNewCards } from "../../../redux/actions";
+import { changeGameMode, generateNewCards, toggleCardState } from "../../redux/actions";
 
-const Card = ({ root, onCardClick }) => {
-    const [active, setActive] = useState(false);
+const Card = ({ root, onCardClick, toggleActive }) => {
+    // const [active, setActive] = useState(false);
     const stylesFront = {
-        transform: active ? "rotateY(180deg)" : "",
+        transform: root.active ? "rotateY(180deg)" : "",
     };
     const stylesBack = {
-        transform: active ? "rotateY(360deg)" : "",
+        transform: root.active ? "rotateY(360deg)" : "",
         backgroundImage: `url(${root.src})`,
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
@@ -19,20 +19,19 @@ const Card = ({ root, onCardClick }) => {
             <div
                 className="game_card_front"
                 onClick={(e) => {
-                    console.log(root.src);
                     onCardClick(root);
-                    setActive(!active);
+                    toggleActive(true, root.id);
                 }}
                 style={stylesFront}
             >
-                {root.title}
+                {/* {root.title} */}
             </div>
             <div className="game_card_back" style={stylesBack}></div>
         </div>
     );
 };
 
-const CardsGameRoot = ({ mode, changeMode, generateCards, cardsArr }) => {
+const CardsGameRoot = ({ mode, changeMode, generateCards, cards, toggleActive, gameFinished }) => {
     useEffect(() => {
         generateCards();
     }, []);
@@ -43,7 +42,7 @@ const CardsGameRoot = ({ mode, changeMode, generateCards, cardsArr }) => {
         gridTemplateRows: `repeat(${mode}, 1fr)`,
     });
     const [gameStarted, setGameStarted] = useState(false);
-    const [prevCard, setPrevCard] = useState({});
+    const [prevCard, setPrevCard] = useState();
     // CONSTS
 
     // FUNCIONS
@@ -60,22 +59,33 @@ const CardsGameRoot = ({ mode, changeMode, generateCards, cardsArr }) => {
     };
 
     const onCardClick = (card) => {
-        if ((card.src = prevCard.src)) {
-            console.log("WIN");
-        } else {
-            setPrevCard(card);
-            console.log("LOOSE");
-        }
+        if (prevCard) {
+            if (card.src === prevCard.src) {
+                console.log("WIN");
+                setPrevCard(null);
+            } else {
+                setTimeout(() => {
+                    toggleActive(false, card.id);
+                    toggleActive(false, prevCard.id);
+                }, 1000);
+                setPrevCard(null);
+                console.log("LOOSE");
+            }
+        } else setPrevCard(card);
     };
 
     return (
         <div className="game_wrapper">
-            <section className="gameInfo">{gameStarted ? "info" : "Change difficulty"}</section>
+            <section className="game_info">
+                <span className="game_info_msg">
+                    {gameStarted ? (gameFinished ? "WIIIN!!!" : "") : "Change difficulty"}
+                </span>
+            </section>
             {gameStarted ? (
                 <section className="game">
                     <div className="game_area" style={areaStyles}>
-                        {cardsArr.map((card, i) => (
-                            <Card root={card} key={i} onCardClick={onCardClick} />
+                        {cards.map((card, i) => (
+                            <Card root={card} key={i} onCardClick={onCardClick} toggleActive={toggleActive} />
                         ))}
                     </div>
                 </section>
@@ -93,7 +103,8 @@ const CardsGameRoot = ({ mode, changeMode, generateCards, cardsArr }) => {
 const mstp = ({ games }) => {
     return {
         mode: games.cardsGame.mode,
-        cardsArr: games.cardsGame.cards,
+        cards: games.cardsGame.cards,
+        gameFinished: games.cardsGame.gameFinished,
     };
 };
 
@@ -101,6 +112,7 @@ const mdtp = (dispatch) => {
     return {
         changeMode: (mode) => dispatch(changeGameMode(mode)),
         generateCards: () => dispatch(generateNewCards()),
+        toggleActive: (id, active) => dispatch(toggleCardState(id, active)),
     };
 };
 
